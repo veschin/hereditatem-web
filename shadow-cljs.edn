@@ -1,0 +1,13 @@
+{:source-paths ["src-cljs" "src-cljc"]
+ :nrepl        {:port 37888}
+ :builds       {:app {:target           :browser
+                      :output-dir       "resources/public/js/app"
+                      :asset-path       "/js/app"
+                      :modules          {:main    {:entries []}
+                                         :manager {:entries    [manager.application.core]
+                                                   :init-fn    manager.application.core/init
+                                                   :depends-on #{:main}}}
+                      :after-load       shadow-re-frame.simple/render
+                      :compiler-options {:output-wrapper   true
+                                         :closure-warnings {:global-this :off}
+                                         :closure-defines  {re-frame.trace.trace-enabled? true}}}}}

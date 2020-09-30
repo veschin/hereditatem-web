@@ -1,0 +1,7 @@
+.env
+.nrepl-port
+.calva
+.cpcache
+node_modules
+.shadow-cljs
+resources/public/js/app

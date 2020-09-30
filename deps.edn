@@ -1,0 +1,21 @@
+{:paths   ["src" "resources"]
+ :deps    {:mount/mount                                     {:mvn/version "0.1.16"}
+           :http-kit                                        {:mvn/version "2.3.0"}
+           :ring/ring-core                                  {:mvn/version "1.8.0"}
+           :ring/ring-json                                  {:mvn/version "0.5.0"}
+           :bidi                                            {:mvn/version "2.1.6"}
+
+           :clj-http/clj-http                               {:mvn/version "3.10.0"}
+           :cheshire                                        {:mvn/version "5.8.1"}
+           :lynxeyes/dotenv                                 {:mvn/version "1.1.0"}
+           :com.google.auth/google-auth-library-oauth2-http {:mvn/version "0.21.1"}}
+ :aliases {:repl {:extra-paths ["repl"]
+                  :extra-deps  {:org.clojure/tools.namespace {:mvn/version "1.0.0"}}}
+           :cljs {:extra-paths ["src-cljs"]
+                  :extra-deps  {:thheller/shadow-cljs   {:mvn/version "2.8.83"}
+                                :rocks.clj/accountant   {:mvn/version "0.1.8"}
+                                :re-frame               {:mvn/version "1.1.1"}
+                                :reagent-utils          {:mvn/version "0.3.1"}
+                                :com.google.guava/guava {:mvn/version "22.0"}
+                                :cljs-ajax              {:mvn/version "0.7.5"}}
+                  :main-opts   ["-m" "shadow.cljs.devtools.cli"]}}}
