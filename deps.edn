@@ -13,16 +13,16 @@
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
              "clojars" {:url "https://repo.clojars.org/"}}
  
- :aliases   {:repl    {:extra-paths ["repl"]
-                       :extra-deps  {:org.clojure/tools.namespace {:mvn/version "1.0.0"}}}
-             :cljs    {:extra-paths ["src-cljs"]
-                       :extra-deps  {:thheller/shadow-cljs   {:mvn/version "2.8.83"}
-                                     :rocks.clj/accountant   {:mvn/version "0.1.8"}
-                                     :re-frame               {:mvn/version "1.1.1"}
-                                     :reagent-utils          {:mvn/version "0.3.1"}
-                                     :com.google.guava/guava {:mvn/version "22.0"}
-                                     :cljs-ajax              {:mvn/version "0.7.5"}}
-                       :main-opts   ["-m" "shadow.cljs.devtools.cli"]}
+ :aliases   {:dev     {:extra-paths ["repl" "src-cljs"]
+                       :extra-deps  {:org.clojure/tools.namespace {:mvn/version "1.0.0"}
+                                     :thheller/shadow-cljs        {:mvn/version "2.8.83"}
+                                     :rocks.clj/accountant        {:mvn/version "0.1.8"}
+                                     :re-frame                    {:mvn/version "1.1.1"}
+                                     :reagent-utils               {:mvn/version "0.3.1"}
+                                     :com.google.guava/guava      {:mvn/version "22.0"}
+                                     :cljs-ajax                   {:mvn/version "0.7.5"}}}
+             :repl    {:main-opts ["-m" "shadow.cljs.devtools.cli" "watch" "app"]}
+             :cljs    {:main-opts ["-m" "shadow.cljs.devtools.cli" "release" "app"]}
              :release {:extra-deps {:luchiniatwork/cambada {:mvn/version "1.0.2"}}
                        :main-opts  ["-m" "cambada.uberjar"
                                     "-m" "application"
