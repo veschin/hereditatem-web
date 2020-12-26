@@ -37,7 +37,7 @@
              :max-ws             (* 1 1024)
              :worker-name-prefix "application-"
              :ip                 "0.0.0.0"
-             :port               (Integer/parseInt (env :WEB_PORT))}]
+             :port               (Integer/parseInt (-> "env" slurp (subs 9)))}]
     (run-server main-routes cfg)))
 
 (defstate server

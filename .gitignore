@@ -2,8 +2,12 @@
 .nrepl-port
 .calva
 .cpcache
+.clj-kondo
 node_modules
 .shadow-cljs
 resources/public/js/app
 target
 pom.xml
+package-lock.json
+.lsp/sqlite.1.db
+db/database.db
