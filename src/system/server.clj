@@ -8,7 +8,7 @@
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.json :refer [wrap-json-params]]
             [ring.util.response :refer [resource-response not-found]]
-
+            [handlers.page-handler :refer [page-handler]]
             [bidi.ring :refer [make-handler ->Resources ->WrapMiddleware]]
 
             [mount.core :refer [defstate]]
@@ -22,7 +22,7 @@
     (make-handler
      ["/" [["" (constantly (resource-response "templates/index.html"))]
            ["" (->WrapMiddleware
-                []
+                [["save-page/" page-handler]]
                 (comp
                  wrap-json-params
                  wrap-params
