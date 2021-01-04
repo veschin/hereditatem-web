@@ -19,14 +19,14 @@
                [:height :int]
                [:foot_size :float]])
 
-(def testimony [[:id :integer :primary :key :autoincrement]
-                [:recommendation :text]
-                [:anamnesis :text]
-                [:images :blob]
-                [:insole :text]
-                [:patient_id :integer]
-                [:appointment_date :date]
-                ["FOREIGN KEY(patient_id) REFERENCES patients(id)"]])
+(def indication [[:id :integer :primary :key :autoincrement]
+                 [:recommendation :text]
+                 [:anamnesis :text]
+                 [:images :blob]
+                 [:insole :text]
+                 [:patient_id :integer]
+                 [:appointment_date :date]
+                 ["FOREIGN KEY(patient_id) REFERENCES patients(id)"]])
 
 
 (comment
@@ -35,12 +35,12 @@
     (sh "rm" "db/database.db")
     (jdbc/db-do-commands db-spec
                          [(jdbc/create-table-ddl :patients patients)
-                          (jdbc/create-table-ddl :testimony testimony)]))
+                          (jdbc/create-table-ddl :indication indication)]))
   "select all from patients"
   (jdbc/query db-spec (sql/format {:select [:*]
                                    :from [:patients]}))
   (jdbc/query db-spec (sql/format {:select [:*]
-                                   :from [:testimony]}))
+                                   :from [:indication]}))
 
 
 
