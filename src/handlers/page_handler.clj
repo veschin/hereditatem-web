@@ -4,8 +4,7 @@
             [honeysql.core :as sql]
             [clojure.java.jdbc :as jdbc]))
 
-(defn update-or-insert!
-  "Updates columns or inserts a new row in the specified table"
+(defn- update-or-insert!
   [db table row where-clause]
   (jdbc/with-db-transaction [t-con db]
     (let [result (jdbc/update! t-con table row where-clause)]
@@ -13,51 +12,83 @@
         (jdbc/insert! t-con table row)
         result))))
 
-(defn- patient-id [last-name phone birth-date]
+(defn- patient-id [last_name phone birth_date]
   (->> (jdbc/query
         db-spec
         (sql/format {:select [:id]
                      :from [[:patients :p]]
                      :where [:and
-                             [:= last-name :p.last_name]
+                             [:= last_name :p.last_name]
                              [:= phone :p.phone]
-                             [:= birth-date :p.birth_date]]}))
+                             [:= birth_date :p.birth_date]]}))
        sort
        last
        :id))
 
-(defn page-handler [req]
-  (let [{:keys [height last-name age phone
-                first-name birth-date patronomyc
-                recommendation foot-size
-                weight appointment-date
-                anamnesis insole images]} (:params req)]
-    (jdbc/insert!
+(defn- post-handler [req]
+  (let [{:keys [height last_name age phone
+                first_name birth_date patronomyc
+                recommendation foot_size
+                weight appointment_date
+                anamnesis insole images]} (:params req)
+        patient-id* (patient-id last_name phone birth_date)]
+    (update-or-insert!
      db-spec :patients
-     {:first_name first-name
+     {:first_name first_name
       :patronomyc patronomyc
-      :last_name last-name
+      :last_name last_name
       :phone phone
-      :birth_date birth-date
+      :birth_date birth_date
       :age age
       :weight weight
       :height height
-      :foot_size foot-size})
-
+      :foot_size foot_size}
+     ["phone = ?" phone])
     (update-or-insert!
-     db-spec :testimony
+     db-spec :indication
      {:recommendation recommendation
       :anamnesis anamnesis
       :images images
       :insole insole
-      :appointment_date appointment-date
-      :patient_id (patient-id last-name phone birth-date)}
-     ["images = ?" images]))
-
+      :appointment_date appointment_date
+      :patient_id (patient-id last_name phone birth_date)}
+     ["insole = ?" insole]))
   (json-ok))
 
-(comment
+(defn- patients-list []
+  (->> (jdbc/query
+        db-spec
+        (sql/format {:select [:p.id
+                              :p.first_name
+                              :p.patronomyc
+                              :p.last_name
+                              :p.birth_date]
+                     :from [[:patients :p]]}))
+       (map (fn [{id :id :as patient}] {id (dissoc patient :id)}))
+       (into {})))
 
-  (jdbc/insert! db-spec :testimony))
+(defn- patient-info [{params :params}]
+  (let [{:keys [first_name patronomyc last_name birth_date]} params]
+    (->> (jdbc/query
+          db-spec
+          (sql/format {:select [:p.* :i.*]
+                       :from [[:patients :p]]
+                       :join [[:indication :i] [:= :i.patient_id :p.id]]
+                       :where [:and
+                               [:= first_name :p.first_name]
+                               [:= patronomyc :p.patronomyc]
+                               [:= last_name :p.last_name]
+                               [:= birth_date :p.birth_date]]}))
+         (sort-by :id)
+         last)))
 
+(defn- get-handler [{params :params :as req}]
+  (case (-> params :action keyword)
+    :patients-list (json-ok (patients-list))
+    :patient-info (-> req patient-info json-ok)))
 
+(defn page-handler [{method :request-method :as req}]
+  (def req' req)
+  (case method
+    :post (post-handler req)
+    :get (get-handler req)))
