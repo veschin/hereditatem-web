@@ -22,7 +22,7 @@
     (make-handler
      ["/" [["" (constantly (resource-response "templates/index.html"))]
            ["" (->WrapMiddleware
-                [["save-page/" page-handler]]
+                [["main-page/" page-handler]]
                 (comp
                  wrap-json-params
                  wrap-params
