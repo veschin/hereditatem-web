@@ -1,0 +1,13 @@
+.custom-grid {
+    margin: 0 !important;
+    height: 60px;
+}
+
+.custom-grid h3 {
+    width: 0;
+    height: 0;
+}
+
+.custom-grid:hover {
+    background-color: #EFEFEF;
+}
