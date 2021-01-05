@@ -9,6 +9,5 @@ resources/public/js/app
 target
 pom.xml
 package-lock.json
-.lsp/sqlite.1.db
 db/database.db
-.lsp/sqlite.4.db
+.lsp/
