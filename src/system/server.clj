@@ -1,7 +1,5 @@
 (ns system.server
-  (:require [dotenv :refer [env]]
-
-            [ring.middleware.session :refer [wrap-session]]
+  (:require [ring.middleware.session :refer [wrap-session]]
             [ring.middleware.session.memory :refer [memory-store]]
 
             [ring.middleware.params :refer [wrap-params]]
@@ -39,7 +37,7 @@
              :ip                 "0.0.0.0"
              :port               (Integer/parseInt (-> "env" slurp (subs 9)))}]
     (run-server main-routes cfg)))
-
+(declare server)
 (defstate server
   :start (start)
   :stop  (server))

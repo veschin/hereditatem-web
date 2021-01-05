@@ -5,6 +5,7 @@
 (comment
 
   (do
+    (ns user.system)
     (require
      '[mount.core :refer [stop]]
      'application
