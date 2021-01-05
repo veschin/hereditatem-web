@@ -25,13 +25,49 @@
        last
        :id))
 
-(defn- post-handler [req]
+(defn- patients-list []
+  (->> (jdbc/query
+        db-spec
+        (sql/format {:select [:p.id
+                              :p.first_name
+                              :p.patronomyc
+                              :p.last_name
+                              :p.birth_date]
+                     :from [[:patients :p]]}))
+       (map (fn [{id :id :as patient}] {id (dissoc patient :id)}))
+       (into {})))
+
+(defn- patient-info [{params :params}]
+  (let [{:keys [first_name patronomyc last_name birth_date]} params
+        take-out-images (fn [{images :images :as patient}]
+                          {:images-vec images
+                           :patient (dissoc patient :images)})]
+    (->> (jdbc/query
+          db-spec
+          (sql/format {:select [:p.* :i.*]
+                       :from [[:patients :p]]
+                       :join [[:indication :i] [:= :i.patient_id :p.id]]
+                       :where [:and
+                               [:= first_name :p.first_name]
+                               [:= patronomyc :p.patronomyc]
+                               [:= last_name :p.last_name]
+                               [:= birth_date :p.birth_date]]}))
+
+         (sort-by :id)
+         last
+         take-out-images)))
+
+(defn- get-handler [{params :params :as req}]
+  (case (-> params :action keyword)
+    :patients-list (json-ok (patients-list))
+    :patient-info (json-ok (patient-info req))))
+
+(defn- insert-patient [{params :params}]
   (let [{:keys [height last_name age phone
                 first_name birth_date patronomyc
                 recommendation foot_size
                 weight appointment_date
-                anamnesis insole images]} (:params req)
-        patient-id* (patient-id last_name phone birth_date)]
+                anamnesis insole images]} params]
     (update-or-insert!
      db-spec :patients
      {:first_name first_name
@@ -52,43 +88,26 @@
       :insole insole
       :appointment_date appointment_date
       :patient_id (patient-id last_name phone birth_date)}
-     ["insole = ?" insole]))
-  (json-ok))
+     ["insole = ?" insole])))
 
-(defn- patients-list []
-  (->> (jdbc/query
-        db-spec
-        (sql/format {:select [:p.id
-                              :p.first_name
-                              :p.patronomyc
-                              :p.last_name
-                              :p.birth_date]
-                     :from [[:patients :p]]}))
-       (map (fn [{id :id :as patient}] {id (dissoc patient :id)}))
-       (into {})))
+(defn- remove-patient [{params :params}]
+  (let [{:keys [last_name phone birth_date]} params
+        patient-id (patient-id last_name phone birth_date)]
+    (jdbc/delete!
+     db-spec
+     :patients
+     ["id = ?" patient-id])
+    (jdbc/delete!
+     db-spec
+     :indication
+     ["patient_id = ?" patient-id])))
 
-(defn- patient-info [{params :params}]
-  (let [{:keys [first_name patronomyc last_name birth_date]} params]
-    (->> (jdbc/query
-          db-spec
-          (sql/format {:select [:p.* :i.*]
-                       :from [[:patients :p]]
-                       :join [[:indication :i] [:= :i.patient_id :p.id]]
-                       :where [:and
-                               [:= first_name :p.first_name]
-                               [:= patronomyc :p.patronomyc]
-                               [:= last_name :p.last_name]
-                               [:= birth_date :p.birth_date]]}))
-         (sort-by :id)
-         last)))
-
-(defn- get-handler [{params :params :as req}]
+(defn- post-handler [{params :params :as req}]
   (case (-> params :action keyword)
-    :patients-list (json-ok (patients-list))
-    :patient-info (-> req patient-info json-ok)))
+    :insert-patient (json-ok (insert-patient req))
+    :remove-patient (json-ok (remove-patient req))))
 
 (defn page-handler [{method :request-method :as req}]
-  (def req' req)
   (case method
     :post (post-handler req)
     :get (get-handler req)))
