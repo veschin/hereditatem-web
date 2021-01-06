@@ -2,31 +2,44 @@
   (:require [semantic]
             [ajax.core :refer [GET]]
             [cljs.reader :as reader]
-            [state :refer [ref'storage images disabled? patients-list]]
-            [helpers :refer [create-margin select-by select set-value]]))
+            [clojure.string :refer [includes? lower-case]]
+            [state :refer [ref'storage images disabled?
+                           patients-list buffer-for-patient-list]]
+            [helpers :refer [create-margin select-by select set-value select-all]]))
 
-(defn update-insole [insole value]
-  (let [items (select-by insole ".menu")
-        remove-selected #(-> % .-classList (.remove "selected" "active"))
-        add-selected #(-> % .-classList (.add "selected" "active"))
-        return (fn [func val] (func val) val)
-        valid? #(= (-> % (select-by "span") .-innerText) value)]
-    ;; (def items items)
-    (set! (.-innerText (-> insole .-children array-seq first)) value)
-    (doall (->> items
-                .-children
-                array-seq
-                (map #(return remove-selected %))
-                (map #(when (valid? %) (add-selected %)))))))
+;; (defn- update-insole [insole value]
+;;   (let [items (select-by insole ".menu")
+;;         remove-selected #(-> % .-classList (.remove "selected" "active"))
+;;         add-selected #(-> % .-classList (.add "selected" "active"))
+;;         return (fn [func val] (func val) val)
+;;         valid? #(= (-> % (select-by "span") .-innerText) value)]
+;;     ;; (def items items)
+;;     (set! (.-innerText (-> insole .-children array-seq first)) value)
+;;     (doall (->> items
+;;                 .-children
+;;                 array-seq
+;;                 (map #(return remove-selected %))
+;;                 (map #(when (valid? %) (add-selected %)))))))
+
+(defn- clear-inputs []
+  ;; (reset! ref'storage {})
+  (let [valid? #(not (= "#search" (.-id %)))
+        inputs (->> ["textarea" "input"] (map select-all)
+                    (map array-seq)
+                    (apply concat))]
+    (doseq [input inputs]
+      (.setAttribute input "autocomplete" "off"))
+    (->> inputs
+         (filter valid?)
+         (map #(set-value % "")))))
 
 (defn- fill-inputs [[selector value]]
+  (clear-inputs)
   (let [selector* (->> selector name (str "#") select)]
-    (case selector
-      :insole (update-insole selector* value)
-      (when selector*
-        (set-value selector* value)))))
+    (when selector*
+      (set-value selector* value))))
 
-(defn patient-info [patient]
+(defn- patient-info [patient]
   (reset! disabled? true)
   (GET "/main-page/"
     {:response-format :json
@@ -51,12 +64,26 @@
        el
        (recur (.-parentElement el)))))
 
+(defn- custom-search [query]
+  (let [patients @patients-list
+        includes?* (fn [[_ value]] (includes? (lower-case value) query))
+        valid? (fn [[_ fields]] (->> fields
+                                     (map includes?*)
+                                     doall
+                                     (some true?)))]
+    (->> patients (filter valid?) (into {}) (reset! buffer-for-patient-list))))
+
 (defn patients-list-section []
-  (let [patients @patients-list]
+  (clear-inputs)
+  (let [patients @buffer-for-patient-list
+        search-value #(-> % .-target .-value)]
     [semantic/segment
      [semantic/header {:style (create-margin 10)
                        :size "medium"} "Поиск пациентов"]
-     [semantic/search]
+     [semantic/input {:icon "search"
+                      :id "search"
+                      :style (create-margin 10)
+                      :on-change #(-> % search-value custom-search)}]
      (into
       [semantic/list]
       (for [[id patient] patients]
