@@ -33,6 +33,7 @@
 (defn medical-section []
   (let [insoles ["Junior" "J2" "S" "M" "L" "XL" "XXL"]
         insole-value #(-> % (js->clj :keywordize-keys true) :value)
+        insole-label (if-let [_ (:insole @ref'storage)] _ "Стелька не выбрана")
         disabled-color (reagent/atom (when (not @disabled?) "#D0EA2B"))
         date (subs (js/Date) 4 15)
         _ (swap! ref'storage assoc :appointment-date (js/Date.))
@@ -52,7 +53,9 @@
                           :disabled @disabled?
                           :id "insole"
                           :on-change  #(swap! ref'storage assoc :insole (insole-value %2))
-                          :options (map (fn [val] {:key val :value val :text val}) insoles)}]]
+                          :options (map (fn [val] {:key val :value val :text val}) insoles)}]
+      [semantic/label {:style (create-margin 'left 15)
+                       :size "large"} insole-label]]
      [semantic/grid-row
       {:style (create-margin 10)}
       [semantic/textarea {:style {:padding 10
@@ -76,18 +79,27 @@
       {:style (create-margin 15)}
       [semantic/header "Дата"]
       [:p date]
-      [semantic/button {:on-click #(swap! disabled? not)} "Изменить документ"]
+      [semantic/button {:on-click #(swap! disabled? not)
+                        :style {:margin-bottoms 10
+                                :background-color @disabled-color}}
+       [semantic/icon {:name  "pencil"}]
+       "Изменить документ"]
 
-      [semantic/icon {:style {:margin 15
-                              :color @disabled-color}
-                      :name "circle" :size "large"}]
+      ;; [semantic/icon {:style {:margin 15
+      ;;                         :color @disabled-color}
+      ;;                 :name "circle" :size "large"}]
 
       [semantic/grid-row
        [semantic/button {:disabled @disabled-save
+
                          :on-click #((do
                                        (patient-insert)
-                                       (swap! saved? inc)))} "Сохранить документ"]
+                                       (swap! saved? inc)))}
+        [semantic/icon {:name  "save"}]
+        "Сохранить документ"]
        save-date]
       [semantic/button {:style (create-margin 'top 10)
-                        :on-click #(swap! render-confirm? not)} "Удалить документ"]
+                        :on-click #(swap! render-confirm? not)}
+       [semantic/icon {:name  "delete"}]
+       "Удалить документ"]
       (when @render-confirm? (confirm))]]))
