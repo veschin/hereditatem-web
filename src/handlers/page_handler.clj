@@ -44,16 +44,13 @@
                            :patient (dissoc patient :images)})]
     (->> (jdbc/query
           db-spec
-          (sql/format {:select [:p.* :i.*]
+          (sql/format {:select [:p.*]
                        :from [[:patients :p]]
-                       :join [[:indication :i] [:= :i.patient_id :p.id]]
                        :where [:and
                                [:= first_name :p.first_name]
                                [:= patronomyc :p.patronomyc]
                                [:= last_name :p.last_name]
                                [:= birth_date :p.birth_date]]}))
-
-         (sort-by :id)
          last
          take-out-images)))
 
@@ -78,17 +75,13 @@
       :age age
       :weight weight
       :height height
-      :foot_size foot_size}
-     ["phone = ?" phone])
-    (update-or-insert!
-     db-spec :indication
-     {:recommendation recommendation
+      :foot_size foot_size
+      :recommendation recommendation
       :anamnesis anamnesis
       :images images
       :insole insole
-      :appointment_date appointment_date
-      :patient_id (patient-id last_name phone birth_date)}
-     ["insole = ?" insole])))
+      :appointment_date appointment_date}
+     ["phone = ?" phone])))
 
 (defn- remove-patient [{params :params}]
   (let [{:keys [last_name phone birth_date]} params
@@ -96,11 +89,7 @@
     (jdbc/delete!
      db-spec
      :patients
-     ["id = ?" patient-id])
-    (jdbc/delete!
-     db-spec
-     :indication
-     ["patient_id = ?" patient-id])))
+     ["id = ?" patient-id])))
 
 (defn- post-handler [{params :params :as req}]
   (case (-> params :action keyword)
