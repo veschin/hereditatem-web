@@ -9,7 +9,7 @@
             [sections.medical :refer [medical-section]]
             [sections.images :refer [images-section]]
             [sections.inputs :refer [inputs-section]]
-            [state :refer [patients-list]]))
+            [state :refer [patients-list buffer-for-patient-list]]))
 
 (defn- home-page []
   [semantic/grid
@@ -29,6 +29,8 @@
     {:response-format :json
      :params {:action :patients-list}
      :keywords?       true
-     :handler         (fn [res] (reset! patients-list (:data res)))})
+     :handler         (fn [res]
+                        (reset! buffer-for-patient-list (:data res))
+                        (reset! patients-list (:data res)))})
   (set-page! ::home))
 
