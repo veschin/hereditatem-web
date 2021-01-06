@@ -3,7 +3,7 @@
 
 (def ref'storage (reagent/atom {}))
 (def patients-list (reagent/atom []))
-(def buffer-for-patient-list (reagent/atom []))
+(def buffer-for-patient-list (reagent/atom nil))
 (def disabled? (reagent/atom true))
 (def render-confirm? (reagent/atom false))
 (def saved? (reagent/atom 0))
