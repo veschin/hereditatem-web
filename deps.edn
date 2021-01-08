@@ -5,7 +5,8 @@
              ring/ring-json                                  {:mvn/version "0.5.0"}
              bidi                                            {:mvn/version "2.1.6"}
              org.clojure/java.jdbc                           {:mvn/version "0.7.11"}
-             org.xerial/sqlite-jdbc                           {:mvn/version "3.23.1"}
+             org.clojure/clojurescript                       {:mvn/version "1.10.764"}
+             org.xerial/sqlite-jdbc                          {:mvn/version "3.23.1"}
              honeysql/honeysql                               {:mvn/version "1.0.444"}
              clj-http/clj-http                               {:mvn/version "3.10.0"}
              cheshire                                        {:mvn/version "5.8.1"}

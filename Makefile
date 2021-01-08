@@ -11,6 +11,6 @@ release:
 	# UPLOAD
 	# scp target/simple-0.1.0-standalone.jar user@ip:path
 	# DONE!
-
+	sudo java -jar target/basic_clj_web_app-0.1.0-standalone.jar
 cljs:
 	$(CLJ) -A:cljs watch app

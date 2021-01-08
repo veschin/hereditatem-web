@@ -6,7 +6,7 @@
 (def db-spec
   {:classname   "org.sqlite.JDBC"
    :subprotocol "sqlite"
-   :subname     "db/database.db"})
+   :subname     "database.db"})
 
 (def patients [[:id :integer :primary :key :autoincrement]
                [:first_name :text]
@@ -24,6 +24,9 @@
                [:insole :text]
                [:appointment_date :date]])
 
+(defn init-db []
+  (jdbc/db-do-commands db-spec
+                       (jdbc/create-table-ddl :patients patients)))
 (comment
   "init db"
   (do
