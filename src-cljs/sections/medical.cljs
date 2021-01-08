@@ -25,7 +25,8 @@
    [semantic/grid-row
     [semantic/header "Вы точно хотите удалить документ?"]]
    [semantic/grid-row
-    [semantic/button {:style (merge (create-margin 'right 30) {:width 120})
+    [semantic/button {:style {:margin-right 30
+                              :width 120}
                       :on-click #(swap! render-confirm? not)} "Нет"]
     [semantic/button {:style {:width 120}
                       :on-click remove-patient} "Да"]]])
@@ -38,26 +39,33 @@
         date (subs (js/Date) 4 15)
         _ (swap! ref'storage assoc :appointment-date (js/Date.))
         save-date (when (-> @saved? zero? not)
-                    [:p {:style (create-margin 'top 15)} (str "Сохранение номер " @saved? " от " date)])
+                    [:p {:style {:margin-top 15}} (str "Сохранение номер " @saved? " от " date)])
         disabled-save (reagent/atom (->> [:first_name :patronomyc :last_name :birth_date :phone]
                                          (map #(% @ref'storage))
                                          (every? seq)
                                          not))]
     [semantic/segment
-     [semantic/header {:style (create-margin 10)
+
+     [semantic/header {:style {:margin 10}
                        :size "medium"} "Выбор врача"]
-     [semantic/grid-row
-      {:style (create-margin 10)}
+     [semantic/grid-row {:style {:margin 10
+                                 :display :inline-flex
+                                 :gap 10}}
+
       [semantic/dropdown {:placeholder "Выбор стельки"
                           :selection true
+                          :className "compact"
+                          :style {:min-width 150}
                           :disabled @disabled?
                           :id "insole"
                           :on-change  #(swap! ref'storage assoc :insole (insole-value %2))
                           :options (map (fn [val] {:key val :value val :text val}) insoles)}]
-      [semantic/label {:style (create-margin 'left 15)
+
+      [semantic/label {:style {:width "35%"
+                               :margin-left "5s%"}
                        :size "large"} insole-label]]
      [semantic/grid-row
-      {:style (create-margin 10)}
+      {:style {:margin 10}}
       [semantic/textarea {:style {:padding 10
                                   :width 300
                                   :height 100}
@@ -67,7 +75,7 @@
 
                           :placeholder "Анамнез"}]]
      [semantic/grid-row
-      {:style (create-margin 10)}
+      {:style {:margin 10}}
       [semantic/textarea {:style {:padding 10
                                   :width 300
                                   :height 100}
@@ -76,11 +84,11 @@
                           :disabled @disabled?
                           :placeholder "Врачебная рекомендация"}]]
      [semantic/grid-row
-      {:style (create-margin 15)}
+      {:style {:margin 15}}
       [semantic/header "Дата"]
       [:p date]
       [semantic/button {:on-click #(swap! disabled? not)
-                        :style {:margin-bottoms 10
+                        :style {:margin-bottom 10
                                 :background-color @disabled-color}}
        [semantic/icon {:name  "pencil"}]
        "Изменить документ"]
@@ -98,7 +106,7 @@
         [semantic/icon {:name  "save"}]
         "Сохранить документ"]
        save-date]
-      [semantic/button {:style (create-margin 'top 10)
+      [semantic/button {:style {:margin-top 10}
                         :on-click #(swap! render-confirm? not)}
        [semantic/icon {:name  "delete"}]
        "Удалить документ"]

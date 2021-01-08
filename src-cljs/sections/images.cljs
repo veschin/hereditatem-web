@@ -18,8 +18,9 @@
      {:style (create-margin 10)}
      [semantic/input {:type "file"
                       :id "images"
-                      :style (create-margin 'bottom 15)
                       :multiple true
+                      :style {:margin-bottom 15
+                              :overflow :hidden}
                       :on-change render-image
                       :disabled @disabled?}]]]
    (for [[key img] @images]

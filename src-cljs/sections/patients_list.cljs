@@ -92,7 +92,8 @@
          [semantic/grid {:className "custom-grid"}
           (into
            [semantic/grid-row
-            {:style (create-margin 5)}]
+            {:style (assoc (create-margin 5) :display "table-row")}]
            (for [[_ key] patient]
-             [semantic/grid-column {:className "four wide"}
-              [:h3 key]]))]]))]))
+             [semantic/grid-column {:style {:display "table-cell"}
+                                    :className "four wide"}
+              [:h4 key]]))]]))]))

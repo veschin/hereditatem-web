@@ -11,3 +11,7 @@
 .custom-grid:hover {
     background-color: #EFEFEF;
 }
+
+div, textarea {
+    max-width: 100% !important;
+}

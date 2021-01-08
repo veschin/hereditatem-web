@@ -13,7 +13,5 @@
     (stop)
     (tn/set-refresh-dirs "src" "src-cljc" "repl")
     (tn/refresh-all :after 'mount.core/start))
-
-
   ;;
   )
